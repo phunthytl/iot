@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>IoT Dashboard</title>
+</head>
+<body>
+    <h1>🌐 IoT Dashboard</h1>
+
+    <h2>Dữ liệu cảm biến (mới nhất)</h2>
+    <table border="1">
+        <tr><th>Thời gian</th><th>Nhiệt độ</th><th>Độ ẩm</th><th>Ánh sáng</th></tr>
+        {% for s in sensors %}
+        <tr>
+        <td>{{ s.created_at }}</td>
+        <td>{{ s.temperature }}</td>
+        <td>{{ s.humidity }}</td>
+        <td>{{ s.light }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Điều khiển thiết bị</h2>
+    <div>
+        <p>Thiết bị 1 (D3):
+        <a href="{% url 'control_device' 1 'ON' %}">ON</a>
+        <a href="{% url 'control_device' 1 'OFF' %}">OFF</a>
+        </p>
+        <p>Thiết bị 2 (D4):
+        <a href="{% url 'control_device' 2 'ON' %}">ON</a>
+        <a href="{% url 'control_device' 2 'OFF' %}">OFF</a>
+        </p>
+        <p>Thiết bị 3 (D5):
+        <a href="{% url 'control_device' 3 'ON' %}">ON</a>
+        <a href="{% url 'control_device' 3 'OFF' %}">OFF</a>
+        </p>
+    </div>
+
+    <h2>Lịch sử điều khiển</h2>
+    <table border="1">
+        <tr><th>Thời gian</th><th>Thiết bị</th><th>Hành động</th></tr>
+        {% for d in devices %}
+        <tr>
+        <td>{{ d.created_at }}</td>
+        <td>{{ d.device_id }}</td>
+        <td>{{ d.action }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
