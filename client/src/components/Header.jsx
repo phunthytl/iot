@@ -11,7 +11,6 @@ export default function Header() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Khai báo danh sách tab, dễ thêm/sửa
     const tabs = [
         { key: "dashboard", label: "Dashboard", icon: <FaHome />, path: "/dashboard" },
         { key: "datasensor", label: "Data Sensor", icon: <FaChartBar />, path: "/datasensor" },

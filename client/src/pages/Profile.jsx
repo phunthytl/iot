@@ -1,15 +1,17 @@
 import React from "react";
 import { FaGithub, FaFilePdf, FaFileWord } from "react-icons/fa";
 import "../styles/Profile.css";
+import avatar from "../files/avatar.jpg";
+import pdf from "../files/BaoCaoIOT.pdf";
 
 export default function Profile() {
     const profile = {
         name: "Nguyễn Văn Phú",
         student_id: "B22DCCN623",
-        image: "/files/profile.jpg",
+        image: avatar,
         github: "https://github.com/phunthytl/iot.git",
-        pdf: "/files/CV_NguyenVanPhu.pdf",
-        apidocx: "https://web.postman.co/workspace/6501ebf8-9385-4f4c-82b2-aae12ffe2927/collection/39132195-27f5c9d9-b765-46f7-827f-cb2b9cc0d0a6?action=share&source=copy-link&creator=39132195",
+        pdf: pdf,
+        apidocx: "https://documenter.getpostman.com/view/39132195/2sB3QNq8j3",
     };
 
     return (

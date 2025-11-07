@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
-  FaSort,
-  FaSortUp,
-  FaSortDown,
-  FaSearch,
-  FaArrowLeft,
-  FaArrowRight,
+    FaSort,
+    FaSortUp,
+    FaSortDown,
+    FaSearch,
+    FaArrowLeft,
+    FaArrowRight,
 } from "react-icons/fa";
 import "../styles/DataSensor.css";
 
