@@ -18,6 +18,11 @@ SENSOR_SAVE_INTERVAL = 2  # 2s
 
 mqtt_client = None  # client toàn cục, dùng lại
 
+latest_sensor = {
+    "air": None,
+    "time": None,
+}
+
 
 # CALLBACKS
 def on_connect(client, userdata, flags, rc):
@@ -34,8 +39,6 @@ def on_message(client, userdata, msg):
     
     from .models import DataSensor, Action, Device
 
-    global last_sensor_time
-
     topic = msg.topic
     payload = msg.payload.decode(errors="ignore").strip()
     print(f"[MQTT] {topic} → {payload}")
@@ -45,6 +48,11 @@ def on_message(client, userdata, msg):
         try:
             data = json.loads(payload)
             now = time.time()
+
+            global last_sensor_time
+
+            latest_sensor["air"] = data.get("air")
+            latest_sensor["time"] = time.strftime("%Y-%m-%d %H:%M:%S")
 
             # Lưu mỗi 2 giây 1 lần
             if now - last_sensor_time >= SENSOR_SAVE_INTERVAL:

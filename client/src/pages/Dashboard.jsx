@@ -1,16 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from "recharts";
-import {
-  FaTemperatureHigh, FaTint, FaLightbulb,
-  FaToggleOn, FaToggleOff, FaFan, FaSnowflake,
-} from "react-icons/fa";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,} from "recharts";
+import { FaTemperatureHigh, FaTint, FaLightbulb, FaToggleOn, FaToggleOff, FaFan, FaSnowflake,} from "react-icons/fa";
 import "../styles/Dashboard.css";
-
-const API_URL = "http://127.0.0.1:8000/api";
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzkwOTI0NTYwLCJpYXQiOjE3NTkzODg1NjAsImp0aSI6ImM5ZmQ0MmMwZWJkNzRkNjI5MWQ3MjZlM2MxOGQzYTI2IiwidXNlcl9pZCI6MX0.oq1HB8vn1EwFDUzlFEAhERBzfGOEt7WyMaRlmA3sxkg";
+import { API_URL, token } from "./config.jsx";
 
 export default function Dashboard() {
     const [sensors, setSensors] = useState([]);
@@ -50,7 +42,7 @@ export default function Dashboard() {
         };
 
         fetchSensors();
-        const interval = setInterval(fetchSensors, 2000);
+        const interval = setInterval(fetchSensors, 4000);
         return () => {
         mounted = false;
         clearInterval(interval);

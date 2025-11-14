@@ -1,17 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-    FaSort,
-    FaSortUp,
-    FaSortDown,
-    FaSearch,
-    FaArrowLeft,
-    FaArrowRight,
-} from "react-icons/fa";
+import {FaSort, FaSortUp, FaSortDown, FaSearch, FaArrowLeft, FaArrowRight,} from "react-icons/fa";
 import "../styles/DataSensor.css";
 
-const API_URL = "http://127.0.0.1:8000/api/sensors/";
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzkwOTI0NTYwLCJpYXQiOjE3NTkzODg1NjAsImp0aSI6ImM5ZmQ0MmMwZWJkNzRkNjI5MWQ3MjZlM2MxOGQzYTI2IiwidXNlcl9pZCI6MX0.oq1HB8vn1EwFDUzlFEAhERBzfGOEt7WyMaRlmA3sxkg";
+import { API_URL, token } from "./config.jsx";
 
 export default function DataSensor() {
     const [data, setData] = useState([]);
@@ -27,7 +18,7 @@ export default function DataSensor() {
     const fetchData = () => {
         const orderParam = sortOrder === "desc" ? `-${sortField}` : sortField;
 
-        let url = `${API_URL}?page=${page}&page_size=${pageSize}&ordering=${orderParam}`;
+        let url = `${API_URL}/sensors/?page=${page}&page_size=${pageSize}&ordering=${orderParam}`;
         if (filter !== "all" && search) {
         url += `&${filter}=${encodeURIComponent(search)}`;
         } else if (search) {

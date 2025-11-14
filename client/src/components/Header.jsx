@@ -13,6 +13,7 @@ export default function Header() {
 
     const tabs = [
         { key: "dashboard", label: "Dashboard", icon: <FaHome />, path: "/dashboard" },
+        { key: "dashboard-2", label: "Dashboard2", icon: <FaHome />, path: "/dashboard2" },
         { key: "datasensor", label: "Data Sensor", icon: <FaChartBar />, path: "/datasensor" },
         { key: "action", label: "Action History", icon: <FaClock />, path: "/action" },
         { key: "profile", label: "Profile", icon: <FaUser />, path: "/profile" },

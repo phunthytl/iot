@@ -1,0 +1,2 @@
+export const API_URL = "http://127.0.0.1:8000/api";
+export const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzkwOTI0NTYwLCJpYXQiOjE3NTkzODg1NjAsImp0aSI6ImM5ZmQ0MmMwZWJkNzRkNjI5MWQ3MjZlM2MxOGQzYTI2IiwidXNlcl9pZCI6MX0.oq1HB8vn1EwFDUzlFEAhERBzfGOEt7WyMaRlmA3sxkg";

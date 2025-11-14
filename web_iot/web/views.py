@@ -71,3 +71,10 @@ class DataSensorViewSet(viewsets.ModelViewSet):
     search_fields = ['id', 'temperature', 'humidity', 'light', 'time']
     ordering_fields = ['id', 'temperature', 'humidity', 'light', 'time']
     pagination_class = CustomPageNumberPagination
+
+from .mqtt_client import latest_sensor
+from rest_framework.views import APIView
+
+class SensorRealtimeAPIView(APIView):
+    def get(self, request):
+        return Response(latest_sensor)
