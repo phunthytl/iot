@@ -2,11 +2,8 @@
 #include <PubSubClient.h>
 #include <DHT.h>
 
-// ================== WiFi ==================
 const char* ssid = "phngynvn";
 const char* password = "tumotdenchin";
-
-// ================== MQTT ==================
 const char* mqtt_server = "172.20.10.3";
 const char* mqtt_user = "user";
 const char* mqtt_password = "123456";
@@ -14,22 +11,19 @@ const char* mqtt_password = "123456";
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-// ================== Cảm biến DHT11 ==================
 #define DHTPIN 4       // D2 = GPIO4
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
-// ================== Cảm biến ánh sáng ==================
 #define LDR_PIN A0
 
-// ================== Thiết bị điều khiển ==================
 #define DEVICE1_PIN 0   // D3
 #define DEVICE2_PIN 2   // D4
 #define DEVICE3_PIN 14  // D5
 #define DEVICE4_PIN 12  // D6
-#define DEVICE5_PIN 13  // D7 (LED cảnh báo – device5)
+#define DEVICE5_PIN 13  // D7
 
-// ================== Hàm gửi phản hồi MQTT ==================
+// Gửi phản hồi MQTT
 void sendConfirm(int id, const char* result) {
   String topic = "device/confirm/";
   topic += String(id);
@@ -37,7 +31,7 @@ void sendConfirm(int id, const char* result) {
   Serial.println("Đã gửi phản hồi: " + topic + " → " + String(result));
 }
 
-// ================== Callback MQTT ==================
+// Callback MQTT
 void callback(char* topic, byte* payload, unsigned int length) {
   String message;
   for (unsigned int i = 0; i < length; i++) {
@@ -58,7 +52,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     {2, DEVICE2_PIN},
     {3, DEVICE3_PIN},
     {4, DEVICE4_PIN},
-    {5, DEVICE5_PIN} // D7 – LED cảnh báo
+    {5, DEVICE5_PIN}
   };
 
   // Xử lý lệnh điều khiển
@@ -80,7 +74,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
 }
 
-// ================== Kết nối lại MQTT ==================
+// Kết nối lại MQTT
 void reconnect() {
   while (!client.connected()) {
     Serial.print("Kết nối MQTT...");
@@ -94,7 +88,7 @@ void reconnect() {
       client.subscribe("device/control/2");
       client.subscribe("device/control/3");
       client.subscribe("device/control/4");
-      client.subscribe("device/control/5"); // thêm device5 (D7)
+      client.subscribe("device/control/5");
       Serial.println("📡 Đã subscribe các topic điều khiển thiết bị");
     } else {
       Serial.print("❌ Lỗi, rc=");
@@ -105,7 +99,7 @@ void reconnect() {
   }
 }
 
-// ================== SETUP ==================
+// SETUP
 void setup() {
   Serial.begin(115200);
   delay(10);
@@ -138,7 +132,7 @@ void setup() {
   client.setCallback(callback);
 }
 
-// ================== LOOP ==================
+// LOOP
 void loop() {
   if (!client.connected()) {
     reconnect();

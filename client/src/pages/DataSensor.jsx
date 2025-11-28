@@ -14,19 +14,19 @@ export default function DataSensor() {
     const [sortField, setSortField] = useState("id");
     const [sortOrder, setSortOrder] = useState("desc");
 
-    // Gọi API
+    // Lấy dữ liệu
     const fetchData = () => {
         const orderParam = sortOrder === "desc" ? `-${sortField}` : sortField;
 
         let url = `${API_URL}/sensors/?page=${page}&page_size=${pageSize}&ordering=${orderParam}`;
         if (filter !== "all" && search) {
-        url += `&${filter}=${encodeURIComponent(search)}`;
+            url += `&${filter}=${encodeURIComponent(search)}`;
         } else if (search) {
-        url += `&search=${encodeURIComponent(search)}`;
+            url += `&search=${encodeURIComponent(search)}`;
         }
 
         fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => res.json())
         .then((res) => {
@@ -40,21 +40,20 @@ export default function DataSensor() {
         fetchData();
     }, [page, pageSize, sortField, sortOrder, filter]);
 
-    // ✅ Enter mới tìm
     const handleSearchKeyDown = (e) => {
         if (e.key === "Enter") {
-        setPage(1);
-        fetchData();
+            setPage(1);
+            fetchData();
         }
     };
 
-    // ✅ Sort mỗi cột
+    // Sort mỗi cột
     const handleSort = (field) => {
         if (sortField === field) {
-        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
         } else {
-        setSortField(field);
-        setSortOrder("asc");
+            setSortField(field);
+            setSortOrder("asc");
         }
     };
 

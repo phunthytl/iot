@@ -12,16 +12,19 @@ last_command = {}
 last_confirm_time = defaultdict(float)
 DEBOUNCE_SECONDS = 2
 
-# Chống spam cảm biến
 last_sensor_time = 0
-SENSOR_SAVE_INTERVAL = 2  # 2s
+SENSOR_SAVE_INTERVAL = 2
 
-mqtt_client = None  # client toàn cục, dùng lại
+mqtt_client = None 
 
 latest_sensor = {
     "air": None,
     "time": None,
 }
+
+WARNING_LED_NAME = "LED cảnh báo"
+warning_led_device = None
+warning_led_state = None
 
 
 # CALLBACKS
@@ -36,7 +39,7 @@ def on_connect(client, userdata, flags, rc):
 
 
 def on_message(client, userdata, msg):
-    
+
     from .models import DataSensor, Action, Device
 
     topic = msg.topic
@@ -49,7 +52,7 @@ def on_message(client, userdata, msg):
             data = json.loads(payload)
             now = time.time()
 
-            global last_sensor_time
+            global last_sensor_time, warning_led_device, warning_led_state
 
             latest_sensor["air"] = data.get("air")
             latest_sensor["time"] = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -65,6 +68,24 @@ def on_message(client, userdata, msg):
                 print(f"Saved sensor: {data}")
             else:
                 print("Skipped sensor (debounce)")
+
+            # Theo dõi LED cảnh báo dựa trên giá trị air
+            try:
+                if warning_led_device is None:
+                    warning_led_device, _ = Device.objects.get_or_create(name=WARNING_LED_NAME)
+
+                desired_state = "ON" if (data.get("air") or 0) > 50 else "OFF"
+                if warning_led_state != desired_state:
+                    warning_led_state = desired_state
+                    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+                    device_states[warning_led_device.id] = {
+                        "status": desired_state,
+                        "updated": timestamp,
+                    }
+                    Action.objects.create(device=warning_led_device, action=desired_state)
+                    print(f"[AUTO] {WARNING_LED_NAME} → {desired_state}")
+            except Exception as e:
+                print("Error tracking warning LED:", e)
 
         except Exception as e:
             print("Error saving sensor:", e)

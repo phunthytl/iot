@@ -6,11 +6,9 @@ import { API_URL, token } from "./config.jsx";
 
 export default function Dashboard() {
     const [sensors, setSensors] = useState([]);
-    const [prevData, setPrevData] = useState(null);
     const [devices, setDevices] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // ref để quản lý việc hủy polling cho từng device
     const confirmCancelRef = useRef({});
 
     // ========== SENSOR ==========
@@ -19,20 +17,19 @@ export default function Dashboard() {
         const fetchSensors = async () => {
         try {
             const res = await fetch(`${API_URL}/sensors/`, {
-            headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
             const list = data.results || data || [];
             if (list.length > 0 && mounted) {
-            const lastTen = list.slice(-10).map((item) => ({
-                ...item,
-                time: new Date(item.time).toLocaleTimeString("vi-VN", {
-                hour12: false,
-                timeZone: "Asia/Ho_Chi_Minh",
-                }),
-            }));
-            setSensors(lastTen.reverse());
-            setPrevData((prev) => prev || lastTen[lastTen.length - 1]);
+                const lastTen = list.slice(-10).map((item) => ({
+                    ...item,
+                    time: new Date(item.time).toLocaleTimeString("vi-VN", {
+                    hour12: false,
+                    timeZone: "Asia/Ho_Chi_Minh",
+                    }),
+                }));
+                setSensors(lastTen.reverse());
             }
         } catch (err) {
             console.error("Lỗi fetch sensors:", err);
@@ -44,8 +41,8 @@ export default function Dashboard() {
         fetchSensors();
         const interval = setInterval(fetchSensors, 4000);
         return () => {
-        mounted = false;
-        clearInterval(interval);
+            mounted = false;
+            clearInterval(interval);
         };
     }, []);
 
@@ -55,28 +52,32 @@ export default function Dashboard() {
         const fetchDevices = async () => {
         try {
             const res = await fetch(`${API_URL}/devices/`, {
-            headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
-            const list = (data.results || data || []).map((d) => ({
-            ...d,
-            status: "UNKNOWN", // mặc định
+            const rawList = (data.results || data || []).map((d) => ({
+                ...d,
+                status: "UNKNOWN", // mặc định
             }));
+
+            const filteredList = rawList
+                .filter((d) => (d.name || "").toLowerCase() !== "led cảnh báo")
+                .slice(0, 4);
             if (!mounted) return;
-            setDevices(list);
+            setDevices(filteredList);
 
             // Lấy trạng thái lần đầu cho từng device
-            for (const device of list) {
-            try {
-                const sres = await fetch(`${API_URL}/devices/${device.id}/status/`, {
-                headers: { Authorization: `Bearer ${token}` },
-                });
-                const sdata = await sres.json();
-                if (!mounted) return;
-                setDevices((prev) => prev.map((p) => (p.id === device.id ? { ...p, status: sdata.status || "UNKNOWN" } : p)));
-            } catch (e) {
-                console.error("Lỗi fetch status cho device", device.id, e);
-            }
+            for (const device of filteredList) {
+                try {
+                    const sres = await fetch(`${API_URL}/devices/${device.id}/status/`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    const sdata = await sres.json();
+                    if (!mounted) return;
+                    setDevices((prev) => prev.map((p) => (p.id === device.id ? { ...p, status: sdata.status || "UNKNOWN" } : p)));
+                } catch (e) {
+                    console.error("Lỗi fetch status cho device", device.id, e);
+                }
             }
         } catch (err) {
             console.error("Lỗi fetch devices:", err);
@@ -85,8 +86,8 @@ export default function Dashboard() {
 
         fetchDevices();
         return () => {
-        mounted = false;
-        Object.keys(confirmCancelRef.current).forEach((k) => (confirmCancelRef.current[k] = true));
+            mounted = false;
+            Object.keys(confirmCancelRef.current).forEach((k) => (confirmCancelRef.current[k] = true));
         };
     }, []);
 
@@ -98,21 +99,21 @@ export default function Dashboard() {
     } = {}) => {
         confirmCancelRef.current[deviceId] = false;
         for (let i = 0; i < maxAttempts; i++) {
-        if (confirmCancelRef.current[deviceId]) throw new Error("cancelled");
-        await sleep(intervalMs);
-        try {
-            const res = await fetch(`${API_URL}/devices/${deviceId}/status/`, {
-            headers: { Authorization: `Bearer ${token}` },
-            });
-            if (!res.ok) continue;
-            const data = await res.json();
-            const got = (data.status || "").toUpperCase();
-            if (got === desiredStatus.toUpperCase()) {
-            return { ok: true, status: got, info: data };
+            if (confirmCancelRef.current[deviceId]) throw new Error("cancelled");
+            await sleep(intervalMs);
+            try {
+                const res = await fetch(`${API_URL}/devices/${deviceId}/status/`, {
+                headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!res.ok) continue;
+                const data = await res.json();
+                const got = (data.status || "").toUpperCase();
+                if (got === desiredStatus.toUpperCase()) {
+                    return { ok: true, status: got, info: data };
+                }
+            } catch (err) {
+                // ignore and retry
             }
-        } catch (err) {
-            // ignore and retry
-        }
         }
         return { ok: false };
     };
@@ -127,17 +128,17 @@ export default function Dashboard() {
         for (const url of urls) {
         try {
             const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body,
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body,
             });
             if (res.status === 404) continue;
             if (res.ok) {
-            const data = await res.json().catch(() => ({}));
-            return { ok: true, url, data };
+                const data = await res.json().catch(() => ({}));
+                return { ok: true, url, data };
             } else {
-            const data = await res.json().catch(() => ({}));
-            return { ok: false, error: data, status: res.status };
+                const data = await res.json().catch(() => ({}));
+                return { ok: false, error: data, status: res.status };
             }
         } catch (err) {
             console.error("postCommand error", url, err);
@@ -188,10 +189,11 @@ export default function Dashboard() {
     if (loading) return <p>Đang tải dữ liệu...</p>;
 
     const latest = sensors[sensors.length - 1] || {};
+    const previous = sensors.length > 1 ? sensors[sensors.length - 2] : null;
     const compareIcon = (key) => {
-        if (!prevData) return "–";
-        if (latest[key] > prevData[key]) return "🔺";
-        if (latest[key] < prevData[key]) return "🔻";
+        if (!previous) return "–";
+        if (latest[key] > previous[key]) return "🔺";
+        if (latest[key] < previous[key]) return "🔻";
         return "–";
     };
 

@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-    FaSort,
-    FaSortUp,
-    FaSortDown,
-    FaSearch,
-    FaArrowLeft,
-    FaArrowRight,
-    FaFilter,
-} from "react-icons/fa";
+import {FaSort, FaSortUp, FaSortDown, FaSearch, FaArrowLeft, FaArrowRight, FaFilter,} from "react-icons/fa";
 import "../styles/DataSensor.css";
 
 import { token } from "./config.jsx";
@@ -35,7 +27,7 @@ export default function ActionHistory() {
     const [showDeviceFilter, setShowDeviceFilter] = useState(false);
     const [showActionFilter, setShowActionFilter] = useState(false);
 
-    // 🔹 Fetch danh sách thiết bị
+    // Lấy danh sách thiết bị
     const fetchDevices = async () => {
         try {
         const res = await fetch(API_DEVICES, {
@@ -49,7 +41,7 @@ export default function ActionHistory() {
         }
     };
 
-    // 🔹 Fetch dữ liệu chính
+    // Lấy dữ liệu lịch sử hành động
     const fetchData = async () => {
         try {
         const orderParam = sortOrder === "desc" ? `-${sortField}` : sortField;
@@ -71,7 +63,7 @@ export default function ActionHistory() {
         setData(items);
         setTotalPages(Math.ceil(result.count / pageSize) || 1);
 
-        // cập nhật danh sách hành động có sẵn
+        // Cập nhật danh sách hành động có sẵn
         const uniqueActions = Array.from(new Set(items.map((i) => i.action)));
         setActions(uniqueActions);
         } catch (err) {

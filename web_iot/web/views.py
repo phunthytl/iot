@@ -53,24 +53,116 @@ class DeviceViewSet(viewsets.ModelViewSet):
                 "message": "Chưa có phản hồi từ thiết bị."
             })
 
+from rest_framework.viewsets import ViewSet
+from .utils_list import *
+class ActionViewSet(ViewSet):
 
-class ActionViewSet(viewsets.ModelViewSet):
-    queryset = Action.objects.all().order_by("-time")
-    serializer_class = ActionSerializer
-    filter_backends = [DjangoFilterBackend, LocalTimeSearchFilter, filters.OrderingFilter]
-    filterset_class = ActionFilter
-    search_fields = ['id', 'device__name', 'action', 'time']
-    ordering_fields = ['id', 'device', 'action', 'time']
-    pagination_class = CustomPageNumberPagination
+    def list(self, request):
+        qs = Action.objects.select_related("device").all()
 
-class DataSensorViewSet(viewsets.ModelViewSet):
-    queryset = DataSensor.objects.all().order_by("-time")
-    serializer_class = DataSensorSerializer
-    filter_backends = [DjangoFilterBackend, LocalTimeSearchFilter, filters.OrderingFilter]
-    filterset_class = DataSensorFilter
-    search_fields = ['id', 'temperature', 'humidity', 'light', 'time']
-    ordering_fields = ['id', 'temperature', 'humidity', 'light', 'time']
-    pagination_class = CustomPageNumberPagination
+        # GET PARAMS
+        search = request.GET.get("search", "")
+        device = request.GET.get("device", "")
+        action = request.GET.get("action", "")
+        time_val = request.GET.get("time", "")
+        ordering = request.GET.get("ordering", "-time")
+        page = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page_size", 10))
+
+        # TIME FILTER
+        if time_val:
+            qs = apply_time_filter(qs, time_val)
+
+        # LOCAL TIME SEARCH
+        qs, searched_by_time = apply_local_time_search(qs, search)
+
+        # SEARCH TEXT
+        if search and not searched_by_time:
+            qs = qs.filter(
+                Q(id__icontains=search) |
+                Q(device__name__icontains=search) |
+                Q(action__icontains=search) |
+                Q(time__icontains=search)
+            )
+
+        # OTHER FILTERS
+        if device:
+            qs = qs.filter(device__name__icontains=device)
+        if action:
+            qs = qs.filter(action__icontains=action)
+
+        # ORDERING
+        qs = qs.order_by(ordering)
+
+        # PAGINATION
+        total = qs.count()
+        start = (page - 1) * page_size
+        qs = qs[start:start + page_size]
+
+        data = ActionSerializer(qs, many=True).data
+
+        return Response({
+            "count": total,
+            "page": page,
+            "page_size": page_size,
+            "results": data
+        })
+    
+class DataSensorViewSet(ViewSet):
+
+    def list(self, request):
+        qs = DataSensor.objects.all()
+
+        search = request.GET.get("search", "")
+        temp = request.GET.get("temperature", "")
+        hum = request.GET.get("humidity", "")
+        light = request.GET.get("light", "")
+        time_val = request.GET.get("time", "")
+        ordering = request.GET.get("ordering", "-time")
+        page = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page_size", 10))
+
+        # TIME FILTER
+        if time_val:
+            qs = apply_time_filter(qs, time_val)
+
+        # LOCAL TIME SEARCH
+        qs, searched_by_time = apply_local_time_search(qs, search)
+
+        # SEARCH TEXT
+        if search and not searched_by_time:
+            qs = qs.filter(
+                Q(id__icontains=search) |
+                Q(temperature__icontains=search) |
+                Q(humidity__icontains=search) |
+                Q(light__icontains=search) |
+                Q(time__icontains=search)
+            )
+
+        # FILTERS
+        if temp:
+            qs = qs.filter(temperature__icontains=temp)
+        if hum:
+            qs = qs.filter(humidity__icontains=hum)
+        if light:
+            qs = qs.filter(light__icontains=light)
+
+        # ORDERING
+        qs = qs.order_by(ordering)
+
+        # PAGINATION
+        total = qs.count()
+        start = (page - 1) * page_size
+        qs = qs[start:start + page_size]
+
+        data = DataSensorSerializer(qs, many=True).data
+
+        return Response({
+            "count": total,
+            "page": page,
+            "page_size": page_size,
+            "results": data
+        })
 
 from .mqtt_client import latest_sensor
 from rest_framework.views import APIView
